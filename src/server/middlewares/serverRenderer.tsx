@@ -14,6 +14,8 @@ import { apiRequest, setTranslations } from 'server/middlewares'
 import { getHtmlTemplate } from 'server/template'
 import { IS_RENDER_TO_STREAM } from 'server/constants'
 import { THEME_NAMES } from 'constants/commonConstants'
+import { persistStore } from 'redux-persist'
+import { PersistGate } from 'redux-persist/integration/react'
 
 const serverRenderer =
   (chunkExtractor: ChunkExtractor): RequestHandler =>
@@ -44,8 +46,8 @@ const serverRenderer =
         ...i18nState
       }
 
-      const store = initStore(preloadedState)
-
+      const store = initStore()
+      const persistor = persistStore(store);
       /*
         Prefetching with RTK Query:
         - Get data;
@@ -63,11 +65,13 @@ const serverRenderer =
 
       const jsx = (
         <Provider store={store}>
-          <HelmetProvider context={helmetContext}>
-            <StaticRouter location={location}>
-              <App />
-            </StaticRouter>
-          </HelmetProvider>
+          <PersistGate loading={null} persistor={persistor}>
+            <HelmetProvider context={helmetContext}>
+              <StaticRouter location={location}>
+                <App />
+              </StaticRouter>
+            </HelmetProvider>
+          </PersistGate>
         </Provider>
       )
 

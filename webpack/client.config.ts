@@ -14,6 +14,13 @@ import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import CopyPlugin from 'copy-webpack-plugin'
+import dotenv from 'dotenv'
+
+const env = dotenv.config().parsed || {}
+const envKeys = Object.keys(env).reduce((prev:any, next:string) => {
+  prev[`process.env.${next}`] = JSON.stringify(env[next])
+  return prev
+}, {})
 
 import { ALIAS, DEV_SERVER_PORT, DIST_DIR, IS_DEV, IS_LAZY_COMPILATION, SRC_DIR } from './constants'
 import * as Loaders from './loaders'
@@ -37,6 +44,7 @@ const filename = (ext: string): string =>
 
 const plugins: WebpackPluginInstance[] = [
   new DefinePlugin({
+    ...envKeys,
     NO_SSR: process.env.NO_SSR === 'true'
   }),
   ...(process.env.NO_SSR === 'true'
@@ -70,7 +78,8 @@ const plugins: WebpackPluginInstance[] = [
         ? [{ from: `${SRC_DIR}/sw.js`, to: 'sw.js' }]
         : [])
     ]
-  })
+  }),
+  
 ]
 
 const clientConfig: Configuration = {

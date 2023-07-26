@@ -1,9 +1,16 @@
 import path from 'path'
 
-import { Configuration } from 'webpack'
+import { Configuration, DefinePlugin } from 'webpack'
 import nodeExternals from 'webpack-node-externals'
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import dotenv from 'dotenv'
+
+const env = dotenv.config().parsed || {}
+const envKeys = Object.keys(env).reduce((prev:any, next:string) => {
+  prev[`process.env.${next}`] = JSON.stringify(env[next])
+  return prev
+}, {})
 
 import {
   ALIAS,
@@ -19,7 +26,13 @@ const serverConfig: Configuration = {
   target: 'node',
   node: { __dirname: false },
   entry: path.join(SERVER_SRC_DIR, '/server'),
-  plugins: [new ForkTsCheckerWebpackPlugin(), new MiniCssExtractPlugin()],
+  plugins: [
+    new ForkTsCheckerWebpackPlugin(), 
+    new MiniCssExtractPlugin(),
+    new DefinePlugin({
+      ...envKeys,
+    })
+  ],
   module: {
     rules: Object.values(Loaders).map((el) => el.server)
   },

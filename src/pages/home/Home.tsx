@@ -32,6 +32,7 @@ const Home: FC = (): ReactElement => {
           value={globalCount}
           description={t.counterDescription.global}
         />
+        {process.env.SET_CONFIG}
       </div>
       <Button
         className='center'

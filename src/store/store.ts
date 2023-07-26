@@ -4,23 +4,33 @@ import {
   StateFromReducersMapObject,
   Dispatch,
   AnyAction,
-  EnhancedStore,
+  // EnhancedStore,
   ThunkDispatch
 } from '@reduxjs/toolkit'
 
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 
+import storage from 'redux-persist/lib/storage';
+import { persistReducer } from 'redux-persist';
+
 import { ThunkAction } from 'redux-thunk'
 
-import { rootReducer } from './rootReducer'
+import { createReducer, rootReducer } from './rootReducer'
 import { pokemonApi } from 'api'
 
-const initStore = (preloadedState?: Partial<RootState>): EnhancedStore =>
+
+const persistConfig = {
+  key: 'root',
+  storage,
+};
+
+const persistedReducer = persistReducer(persistConfig, createReducer());
+
+const initStore = () =>
   configureStore({
-    reducer: rootReducer,
+    reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(pokemonApi.middleware),
-    preloadedState,
     devTools: String(process.env.NODE_ENV).trim() !== 'production'
   })
 

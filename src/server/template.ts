@@ -7,6 +7,13 @@ interface TTemplate {
   footer: string
 }
 
+const renderMetaData = (helmetData: HelmetServerState) => {
+  if(helmetData){
+    return helmetData?.title.toString() + helmetData?.meta.toString()
+  }else{
+    return ''
+  }
+}
 export const getHtmlTemplate = (props: {
   preloadedState: Partial<RootState>
   helmetData: HelmetServerState
@@ -23,8 +30,7 @@ export const getHtmlTemplate = (props: {
             <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
             <meta property="csp-nonce" content="${props.nonce}">
             ${props.styleTags}
-            ${props.helmetData.title.toString()}
-            ${props.helmetData.meta.toString()}
+            ${renderMetaData(props.helmetData)}
         </head>
         <body>
           <noscript>

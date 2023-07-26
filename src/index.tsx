@@ -10,15 +10,14 @@ import { initStore } from 'store/store'
 import { Provider } from 'react-redux'
 import { USE_SERVICE_WORKER } from 'constants/commonConstants'
 
-import { isServer } from 'utils'
 
 import 'style/main.scss'
+import { persistStore } from 'redux-persist'
+import { PersistGate } from 'redux-persist/integration/react'
 
-const store = initStore(
-  !isServer && window.__PRELOADED_STATE__ != null
-    ? window.__PRELOADED_STATE__
-    : undefined
-)
+export const store = initStore();
+
+const persistor = persistStore(store);
 
 if (module.hot != null) {
   module.hot.accept(['store/store', 'store/rootReducer'], () => async () => {
@@ -44,11 +43,13 @@ if (
 const indexJSX = (
   <StrictMode>
     <Provider store={store}>
-      <HelmetProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </HelmetProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <HelmetProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </HelmetProvider>
+      </PersistGate>
     </Provider>
   </StrictMode>
 )
